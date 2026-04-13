@@ -52,8 +52,35 @@ def get_data():
                     station_count_rain = 0
                     total_station_temp = 0
                     total_station_rain = 0
+                    terTemp = dict()
+                    terCount = dict()
                     for record in csv_reader:
-                        
+                        # print(record) 
+                        # print(record) 
+
+
+
+                        if record[4] in terCount:
+                            try:
+                                print(record[4])
+                                print(terCount[record[4]])
+                                print(terTemp)
+                                terTempVal = terTemp[record[4]]
+                                terTemp[record[4]] = terTempVal + float(record[5])
+                                terCountVal = terCount[record[4]]
+                                terCount[record[4]] = terCountVal + 1
+                                
+                            except ValueError:
+                                pass
+                        else:
+                            try:
+                                terTemp[record[4]] = float(record[5])
+                                terCount[record[4]] = 1
+                            except ValueError:
+                                pass
+
+
+
                         try:
                             total_station_temp = total_station_temp + float(record[5])
                         except ValueError:
@@ -66,6 +93,7 @@ def get_data():
                         station_count_temp = station_count_temp + 1
                     total_year_temp = total_year_temp + (total_station_temp / station_count_temp)
                     total_year_rain = total_station_rain / station_count_rain
+                    print(terCount)
                     # print(str(total_year_temp) + " | " +str(total_station_temp) + " | " + str(station_count_temp))
             except FileNotFoundError:
                 print("File " + filename + " does not exist in folder")

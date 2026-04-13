@@ -1,11 +1,12 @@
 import csv
+FILENAME_BASE = "Data/en_climate_summaries_All_"
 def data_files_test():
-    filename_base = "data/en_climate_summaries_All_"
+    
     for i in range(1970,2024):
         for(j) in range(1,12):
             if(j < 10):
                 j = "0" + str(j)
-            filename = filename_base + str(j) + "-" + str(i) + ".csv"
+            filename = FILENAME_BASE + str(j) + "-" + str(i) + ".csv"
             try:
                 file = open(filename)
                 csv_reader = csv.reader(file)
@@ -18,6 +19,8 @@ def data_files_test():
                         print("WARNING: FILE " + filename + " DOES NOT HAVE MAX TEMP IN SPOT 8")
                     if(record[10] != "Tn"):
                         print("WARNING: FILE " + filename + " DOES NOT HAVE MIN TEMP IN SPOT 10")
+                    if(record[4] != "Prov_or_Ter"):
+                        print("WARNING: FILE " + filename + " DOES NOT HAVE PROVINCE IN SPOT 4")
                     break
                 file.close()
             except FileNotFoundError:
@@ -26,7 +29,6 @@ def data_files_test():
     print("--------------------------------------------------------")
 
 def get_data():
-    filename_base = "data/en_climate_summaries_All_"
     avg_temps_total = []
     avg_rain_total = []
     count = 0
@@ -41,7 +43,7 @@ def get_data():
             month_count = month_count + 1
             if(j < 10):
                 j = "0" + str(j)
-            filename = filename_base + str(j) + "-" + str(i) + ".csv"
+            filename = FILENAME_BASE + str(j) + "-" + str(i) + ".csv"
             try:
                 with open(filename) as file:
                     csv_reader = csv.reader(file)
@@ -73,15 +75,25 @@ def get_data():
         avg_temps_total.append(avg_year_temp)
         avg_rain_total.append(avg_year_rain)
     return avg_temps_total, avg_rain_total
+
+
 def write_data(temp,rain):
     with open("output.csv", 'w') as outfile:
         write = csv.writer(outfile)
-        write.writerow(["test1","test2"])
+        count = 0
+        write.writerow(["year","avg temp","avg rain"])
+        for year in range(1970,2025):
+            write.writerow([year,temp[count],rain[count]])
+            count = count + 1
+
+
 def main():
-    # data_files_test()
+    data_files_test()
     avg_temp,avg_rain = get_data()
     write_data(avg_temp,avg_rain)
-    print(avg_temp)
-    print(avg_rain)
+    # print(avg_temp)
+    # print(avg_rain)
     print("Done")
+
+
 main()

@@ -32,12 +32,17 @@ def get_data():
     avg_temps_total = []
     avg_rain_total = []
     count = 0
+    terTempTotal = []
+    yearAvgTemp = []
+    tmpDict = dict()
     for i in range(1970,2025):
         avg_year_temp = 0
         avg_year_rain = 0
         month_count = 0
         total_year_temp = 0
         total_year_rain = 0
+        terTemp = dict()
+        terCount = dict()
         for(j) in range(1,13):
             # print(str(j) + "/" + str(i))
             month_count = month_count + 1
@@ -52,19 +57,14 @@ def get_data():
                     station_count_rain = 0
                     total_station_temp = 0
                     total_station_rain = 0
-                    terTemp = dict()
-                    terCount = dict()
+                    
                     for record in csv_reader:
-                        # print(record) 
-                        # print(record) 
-
-
 
                         if record[4] in terCount:
                             try:
-                                print(record[4])
-                                print(terCount[record[4]])
-                                print(terTemp)
+                                # print(record[4])
+                                # print(terCount[record[4]])
+                                # print(terTemp)
                                 terTempVal = terTemp[record[4]]
                                 terTemp[record[4]] = terTempVal + float(record[5])
                                 terCountVal = terCount[record[4]]
@@ -93,32 +93,56 @@ def get_data():
                         station_count_temp = station_count_temp + 1
                     total_year_temp = total_year_temp + (total_station_temp / station_count_temp)
                     total_year_rain = total_station_rain / station_count_rain
-                    print(terCount)
+                    # print(terCount)
                     # print(str(total_year_temp) + " | " +str(total_station_temp) + " | " + str(station_count_temp))
             except FileNotFoundError:
                 print("File " + filename + " does not exist in folder")
         avg_year_temp = total_year_temp / 12
         avg_year_rain = total_year_rain / 12
-        print(str(i) + " | " + str(avg_year_temp) + " | " + str(avg_year_rain))
+        # print(str(i) + " | " + str(avg_year_temp) + " | " + str(avg_year_rain))
         avg_temps_total.append(avg_year_temp)
         avg_rain_total.append(avg_year_rain)
-    return avg_temps_total, avg_rain_total
+
+        for key in terCount:
+            # print(i,key)
+            count = terCount[key]
+            temp = terTemp[key]
+            avgTemp = temp/count
+            tmpDict[key] = avgTemp
+        # print(i,tmpDict)
+        yearAvgTemp.append((i, tmpDict))
+    # print(yearAvgTemp)
+    return avg_temps_total, avg_rain_total,yearAvgTemp
 
 
-def write_data(temp,rain):
-    with open("output.csv", 'w') as outfile:
-        write = csv.writer(outfile)
-        count = 0
-        write.writerow(["year","avg temp","avg rain"])
-        for year in range(1970,2025):
-            write.writerow([year,temp[count],rain[count]])
-            count = count + 1
+def write_data(temp,rain,terTemp):
+    # with open("output.csv", 'w') as outfile:
+    #     write = csv.writer(outfile)
+    #     count = 0
+    #     write.writerow(["year","avg temp","avg rain"])
+    #     for year in range(1970,2025):
+    #         write.writerow([year,temp[count],rain[count]])
+    #         count = count + 1
 
+
+    with open ("territory.csv", 'w') as terOut:
+        terWrite = csv.writer(terOut)
+        terWrite.writerow(["year","Territory/Province","avg temp"])
+        for i in range(len(terTemp)):
+            terTempData = terTemp[i][1]
+            # print(type(terTempData))
+            # print(terTempData)
+            year = terTemp[i][0]
+            for key in terTempData:
+                ter = key
+                temp = terTempData[key]
+                print(str(year) + " | " + str(ter) + " | " + str(temp))
+                terWrite.writerow([year,ter,temp])
 
 def main():
     data_files_test()
-    avg_temp,avg_rain = get_data()
-    write_data(avg_temp,avg_rain)
+    avg_temp,avg_rain,terTemp = get_data()
+    write_data(avg_temp,avg_rain,terTemp)
     # print(avg_temp)
     # print(avg_rain)
     print("Done")

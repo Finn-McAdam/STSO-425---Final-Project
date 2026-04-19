@@ -32,8 +32,8 @@ def get_data():
     avg_temps_total = []
     avg_rain_total = []
     count = 0
-    terTempTotal = []
-    yearAvgTemp = []
+    terRainTotal = []
+    terDict = []
     tmpDict = dict()
     for i in range(1970,2025):
         avg_year_temp = 0
@@ -42,6 +42,7 @@ def get_data():
         total_year_temp = 0
         total_year_rain = 0
         terTemp = dict()
+        terRain = dict()
         terCount = dict()
         for(j) in range(1,13):
             # print(str(j) + "/" + str(i))
@@ -72,13 +73,24 @@ def get_data():
                                 
                             except ValueError:
                                 pass
+                            try:
+                                terRainVal = terRain[record[4]]
+                                terRain[record[4]] = terRainVal + float(record[15])
+                                terCountVal = terCount[record[4]]
+                                terCount[record[4]] = terCountVal + 1
+                            except ValueError:
+                                pass
                         else:
                             try:
                                 terTemp[record[4]] = float(record[5])
                                 terCount[record[4]] = 1
                             except ValueError:
                                 pass
-
+                            try:
+                                terRain[record[4]] = float(record[15])
+                                terCount[record[4]] = 1
+                            except ValueError:
+                                pass
 
 
                         try:
@@ -102,20 +114,21 @@ def get_data():
         # print(str(i) + " | " + str(avg_year_temp) + " | " + str(avg_year_rain))
         avg_temps_total.append(avg_year_temp)
         avg_rain_total.append(avg_year_rain)
-
         for key in terCount:
             # print(i,key)
             count = terCount[key]
             temp = terTemp[key]
-            avgTemp = temp/count
-            tmpDict[key] = avgTemp
+            rain = terRain[key]
+            avgTemp = temp/count[0]
+            avgRain = rain/count[1]
+            tmpDict[key] = [avgTemp,avgRain]
         # print(i,tmpDict)
-        yearAvgTemp.append((i, tmpDict))
+        terDict.append((i, tmpDict))
     # print(yearAvgTemp)
-    return avg_temps_total, avg_rain_total,yearAvgTemp
+    return avg_temps_total, avg_rain_total,terDict
 
 
-def write_data(temp,rain,terTemp):
+def write_data(temp,rain,terData):
     # with open("output.csv", 'w') as outfile:
     #     write = csv.writer(outfile)
     #     count = 0
@@ -127,22 +140,23 @@ def write_data(temp,rain,terTemp):
 
     with open ("territory.csv", 'w') as terOut:
         terWrite = csv.writer(terOut)
-        terWrite.writerow(["year","Territory/Province","avg temp"])
-        for i in range(len(terTemp)):
-            terTempData = terTemp[i][1]
+        terWrite.writerow(["year","Territory/Province","avg temp","avg rain"])
+        for i in range(len(terData)):
+            terDataVals = terData[i][1]
             # print(type(terTempData))
             # print(terTempData)
-            year = terTemp[i][0]
-            for key in terTempData:
+            year = terData[i][0]
+            for key in terDataVals:
                 ter = key
-                temp = terTempData[key]
-                print(str(year) + " | " + str(ter) + " | " + str(temp))
-                terWrite.writerow([year,ter,temp])
+                temp = terDataVals[key][0]
+                rain = terDataVals[key][1]
+                print(str(year) + " | " + str(ter) + " | " + str(temp) + " | " + str(rain))
+                terWrite.writerow([year,ter,temp,rain])
 
 def main():
     data_files_test()
-    avg_temp,avg_rain,terTemp = get_data()
-    write_data(avg_temp,avg_rain,terTemp)
+    avg_temp,avg_rain,terData = get_data()
+    write_data(avg_temp,avg_rain,terData)
     # print(avg_temp)
     # print(avg_rain)
     print("Done")

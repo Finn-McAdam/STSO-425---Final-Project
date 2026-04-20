@@ -131,7 +131,7 @@ def get_data():
             avgRain = rain/rainCount
             tmpDict[key] = [avgTemp,avgRain]
             # print(tmpDict)
-        terDict.append((i, tmpDict))
+        terDict.append((i, tmpDict.copy()))
         # print(i,tmpDict)
         
     # print(yearAvgTemp)

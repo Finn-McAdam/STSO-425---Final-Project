@@ -33,8 +33,9 @@ def get_data():
     avg_rain_total = []
     count = 0
     terRainTotal = []
-    terDict = []
+    terList = []
     tmpDict = dict()
+    nullList = [];
     for i in range(1970,2025):
         avg_year_temp = 0
         avg_year_rain = 0
@@ -45,7 +46,10 @@ def get_data():
         terRain = dict()
         terTempCount = dict()
         terRainCount = dict()
+        maxNull = 0;
+        maxNullMonth = 0;
         for(j) in range(1,13):
+            nullCount = 0;
             # print(str(j) + "/" + str(i))
             month_count = month_count + 1
             if(j < 10):
@@ -64,9 +68,7 @@ def get_data():
                         #territory data
                         if record[4] in terTempCount:
                             try:
-                                # print(record[4])
-                                # print(terTempCount[record[4]])
-                                # print(terTemp)
+
                                 terTempVal = terTemp[record[4]]
                                 terTemp[record[4]] = terTempVal + float(record[5])
                                 terTempCountVal = terTempCount[record[4]]
@@ -101,7 +103,7 @@ def get_data():
                             station_count_temp = station_count_temp + 1
 
                         except ValueError:
-                            pass
+                            nullCount = nullCount + 1; #for counting null values
                         try:
                             total_station_rain = total_station_rain + float(record[15])
                             station_count_rain = station_count_rain + 1
@@ -110,19 +112,26 @@ def get_data():
                         
                     total_year_temp = total_year_temp + (total_station_temp / station_count_temp)
                     total_year_rain = total_year_rain + (total_station_rain / station_count_rain)
-                    # print(terTempCount)
+                    if(nullCount > maxNull):
+                        maxNull = nullCount
+                        maxNullMonth = j
+
                     # print(str(total_year_temp) + " | " +str(total_station_temp) + " | " + str(station_count_temp))
+                
             except FileNotFoundError:
                 print("File " + filename + " does not exist in folder")
+        # print(str(nullCount) + " | " + str(maxNull) + " | " + str(maxNullMonth));
         avg_year_temp = total_year_temp / 12
         avg_year_rain = total_year_rain / 12
         # print(str(i) + " | " + str(avg_year_temp) + " | " + str(avg_year_rain))
         avg_temps_total.append(avg_year_temp)
         avg_rain_total.append(avg_year_rain)
-        print("---------------------------------------------------")
-        print(terTempCount)
+        nullList.append((maxNull,maxNullMonth))
+        
+        # print("---------------------------------------------------")
+
         for key in terTempCount:
-            # print(i,key)
+
             tempCount = terTempCount[key]
             rainCount = terRainCount[key]
             temp = terTemp[key]
@@ -130,15 +139,12 @@ def get_data():
             avgTemp = temp/tempCount
             avgRain = rain/rainCount
             tmpDict[key] = [avgTemp,avgRain]
-            # print(tmpDict)
-        terDict.append((i, tmpDict.copy()))
-        # print(i,tmpDict)
-        
-    # print(yearAvgTemp)
-    return avg_temps_total, avg_rain_total,terDict
+
+        terList.append((i, tmpDict.copy()))
+    return avg_temps_total, avg_rain_total,terList,nullList
 
 
-def write_data(temp,rain,terData):
+def write_data(temp,rain,terData,nulls):
     with open("output.csv", 'w') as outfile:
         write = csv.writer(outfile)
         count = 0
@@ -152,9 +158,7 @@ def write_data(temp,rain,terData):
         terWrite = csv.writer(terOut)
         terWrite.writerow(["year","Territory/Province","avg temp","avg rain"])
         for i in range(len(terData)):
-            terDataVals = terData[i][1]
-            # print(type(terTempData))
-            # print(terTempData)
+            terDataVals = terData[i][1]            
             year = terData[i][0]
             for key in terDataVals:
                 ter = key
@@ -162,14 +166,18 @@ def write_data(temp,rain,terData):
                 rain = terDataVals[key][1]
                 # print(str(year) + " | " + str(ter) + " | " + str(temp) + " | " + str(rain))
                 terWrite.writerow([year,ter,temp,rain])
+    with open ("nulls.csv", 'w') as nullOut:
+        nullWrite = csv.writer(nullOut)
+        nullWrite.writerow(["year","Null count","Month"])
+        count = 0
+        for year in range(1970,2025):
+            nullWrite.writerow([year,nulls[count][0],nulls[count][1]])
+            count = count + 1
 
 def main():
     data_files_test()
-    avg_temp,avg_rain,terData = get_data()
-    print(terData)
-    write_data(avg_temp,avg_rain,terData)
-    # print(avg_temp)
-    # print(avg_rain)
+    avg_temp,avg_rain,terData,nulls = get_data()
+    write_data(avg_temp,avg_rain,terData,nulls)
     print("Done")
 
 

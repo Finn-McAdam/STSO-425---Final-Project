@@ -119,6 +119,8 @@ def get_data():
         # print(str(i) + " | " + str(avg_year_temp) + " | " + str(avg_year_rain))
         avg_temps_total.append(avg_year_temp)
         avg_rain_total.append(avg_year_rain)
+        print("---------------------------------------------------")
+        print(terTempCount)
         for key in terTempCount:
             # print(i,key)
             tempCount = terTempCount[key]
@@ -128,8 +130,10 @@ def get_data():
             avgTemp = temp/tempCount
             avgRain = rain/rainCount
             tmpDict[key] = [avgTemp,avgRain]
-        # print(i,tmpDict)
+            # print(tmpDict)
         terDict.append((i, tmpDict))
+        # print(i,tmpDict)
+        
     # print(yearAvgTemp)
     return avg_temps_total, avg_rain_total,terDict
 
@@ -156,12 +160,13 @@ def write_data(temp,rain,terData):
                 ter = key
                 temp = terDataVals[key][0]
                 rain = terDataVals[key][1]
-                print(str(year) + " | " + str(ter) + " | " + str(temp) + " | " + str(rain))
+                # print(str(year) + " | " + str(ter) + " | " + str(temp) + " | " + str(rain))
                 terWrite.writerow([year,ter,temp,rain])
 
 def main():
     data_files_test()
     avg_temp,avg_rain,terData = get_data()
+    print(terData)
     write_data(avg_temp,avg_rain,terData)
     # print(avg_temp)
     # print(avg_rain)

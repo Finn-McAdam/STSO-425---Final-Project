@@ -20,6 +20,10 @@ nav a
 {
     border : 1px solid black;
 }
+ul
+{
+    max-width: 70ch;
+}
 .menu ul
 {
 	/* undo default ul styles */
@@ -30,6 +34,7 @@ nav a
 	display: flex;
 	gap: 10px;
 	justify-content: center;
+    max-width: 100%;
 }
 .menu a
 {
@@ -50,7 +55,7 @@ nav a
 /* end nav bar */
 img{
     float:right;
-    margin : 0 0 16px 16px;
+    margin : 0 0 16px 0;
     
     object-fit: scale-down;
 }
@@ -66,7 +71,16 @@ body
     width : 95%;
 
 }
-
+article
+{
+    width : 60%;
+    display:flex;
+    flex-direction: column;
+}
+aside
+{
+    width : 20%;
+}
 h1
 {
     text-decoration: underline;
@@ -93,12 +107,10 @@ a:hover
 }
 .side-by-side
 {
-    margin-top: 75px;
     display:flex;
     gap: 50px;
     align-content: space-between;
 }
-.side-by-side > * {flex:1;}
 
 
 /* media queries below */
